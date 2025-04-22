@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 
 interface SettingsState {
   apiKey: string;
@@ -17,6 +17,18 @@ interface SettingsState {
   setSaveResumeForAnalysis: (saveResumeForAnalysis: boolean) => void;
   setHasApiKey: (hasApiKey: boolean) => void;
 }
+
+const zustandStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    return await storage.getItem(`local:${name}`);
+  },
+  setItem: async (name: string, value: string) => {
+    await storage.setItem(`local:${name}`, value);
+  },
+  removeItem: async (name: string) => {
+    await storage.removeItem(`local:${name}`);
+  },
+};
 
 export const useSettingsStore = create<SettingsState>()(
   devtools(
@@ -37,7 +49,10 @@ export const useSettingsStore = create<SettingsState>()(
         setSaveResumeForAnalysis: (saveResumeForAnalysis: boolean) => set({ saveResumeForAnalysis }),
         setHasApiKey: (hasApiKey: boolean) => set({ hasApiKey }),
       }),
-      { name: 'userSettings' }
+      {
+        name: 'userSettings',
+        storage: createJSONStorage(() => zustandStorage),
+      }
     )
   )
 );
