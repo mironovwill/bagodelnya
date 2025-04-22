@@ -1,7 +1,8 @@
 import { OptionsLayout } from '@/components';
 import { createRoot } from 'react-dom/client';
-import { Flex, Text, TextArea, Separator, Box, Button, TextField, Select, Switch } from '@radix-ui/themes';
-import { useState, ChangeEvent } from 'react';
+import { Flex, Text, TextArea, Separator, Box, Button, Select, Switch } from '@radix-ui/themes';
+import { ChangeEvent } from 'react';
+import { useSettingsStore } from '@/storage/settings';
 
 const models = [
   'gpt-4o',
@@ -15,30 +16,31 @@ const models = [
 ];
 
 function Options() {
-  const [vacancyPrompt, setVacancyPrompt] = useState('');
-  const [resumePrompt, setResumePrompt] = useState('');
-  const [apiKey, setApiKey] = useState('');
-  const [selectedModel, setSelectedModel] = useState('gpt-4o');
-  const [generateCoverLetter, setGenerateCoverLetter] = useState(true);
-  const [saveResumeForAnalysis, setSaveResumeForAnalysis] = useState(true);
-  const [hasApiKey, setHasApiKey] = useState(false);
-
-  const handleSave = () => {
-    console.log({
-      vacancyPrompt,
-      resumePrompt,
-      apiKey,
-      selectedModel,
-      hasApiKey,
-    });
-  };
+  const {
+    vacancyPrompt,
+    resumePrompt,
+    apiKey,
+    model,
+    hasApiKey,
+    setVacancyPrompt,
+    setResumePrompt,
+    setApiKey,
+    setModel,
+    setHasApiKey,
+    saveResumeForAnalysis,
+    generateCoverLetter,
+    setSaveResumeForAnalysis,
+    setGenerateCoverLetter,
+  } = useSettingsStore();
 
   const handleReset = () => {
     setVacancyPrompt('');
     setResumePrompt('');
     setApiKey('');
-    setSelectedModel('gpt-4o');
+    setModel('gpt-4o');
     setHasApiKey(false);
+    setSaveResumeForAnalysis(true);
+    setGenerateCoverLetter(true);
   };
 
   const handleTextChange = (setter: (value: string) => void) => (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -98,7 +100,7 @@ function Options() {
               </Box>
               <Flex gap="2" align="center">
                 <Text>Модель ChatGPT:</Text>
-                <Select.Root value={selectedModel} onValueChange={setSelectedModel}>
+                <Select.Root value={model} onValueChange={setModel}>
                   <Select.Trigger />
                   <Select.Content>
                     <Select.Group>
@@ -113,12 +115,6 @@ function Options() {
               </Flex>
             </Flex>
           )}
-          <Flex gap="2">
-            <Button onClick={handleSave}>Сохранить</Button>
-            <Button variant="outline" onClick={handleReset}>
-              Сбросить
-            </Button>
-          </Flex>
           <Text size="5" weight="bold">
             Кнопки
           </Text>
@@ -130,6 +126,11 @@ function Options() {
           <Flex align="center" gap="2" mb="4">
             <Text>Сгенерить сопроводительное письмо:</Text>
             <Switch checked={generateCoverLetter} onCheckedChange={setGenerateCoverLetter} />
+          </Flex>
+          <Flex gap="2">
+            <Button variant="outline" onClick={handleReset}>
+              Сбросить
+            </Button>
           </Flex>
         </Flex>
       </Flex>
